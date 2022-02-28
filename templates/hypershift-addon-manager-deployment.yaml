@@ -1,0 +1,30 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Values.hypershiftAddonMgr.deploymentName }}
+  namespace: {{ .Values.installNamespace }}
+  labels:
+    app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ .Values.hypershiftAddonMgr.serviceaccount }}
+      terminationGracePeriodSeconds: 30
+      securityContext: {}
+      containers:
+        - name: {{ .Values.hypershiftAddonMgr.deploymentName }}
+          image: {{ .Values.hypershiftAddonMgr.image }}
+          args:
+            - ./hypershift-addon
+            - manager
+            - '--namespace={{ .Values.installNamespace }}'
+          imagePullPolicy: Always

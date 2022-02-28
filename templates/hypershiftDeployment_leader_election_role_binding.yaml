@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.hypershiftDeployment.leaderRoleName }}
+  namespace: {{ .Values.installNamespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.hypershiftDeployment.leaderRoleName }}
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.hypershiftDeployment.serviceaccount }}
+  namespace: {{ .Values.installNamespace }}

@@ -1,0 +1,16 @@
+installNamespace: open-cluster-management
+
+hypershiftAddonMgr:
+  deploymentName: hypershift-addon-manager
+  serviceaccount: hypershift-addon-manager-sa
+  image: quay.io/ianzhang366/hypershift-addon-operator:latest
+
+
+hypershiftDeployment:
+  image: quay.io/stolostron/hypershift-deployment-controller:latest
+  replicas : 2
+  deploymentName: hypershift-deployment-controller
+  serviceaccount: hyc
+  leaderRoleName: hypershiftDeployment-leader-election
+  editorRoleName: hypershiftdeployment-editor-role
+  viewerRoleName: hypershiftdeployment-viewer-role
