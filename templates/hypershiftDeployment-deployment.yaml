@@ -3,18 +3,19 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    name: {{ .Values.hypershiftDeployment.deploymentName }}
-  name: {{ .Values.hypershiftDeployment.deploymentName }}
-  namespace: {{ .Values.installNamespace }}
+    name: {{ .Values.hypershiftDeploymentOperator.name }}
+  name: {{ .Values.hypershiftDeploymentOperator.name }}
+  namespace: {{ .Values.global.namespace }}
 spec:
   replicas: {{ .Values.hubconfig.replicaCount }}
   selector:
     matchLabels:
-      name: {{ .Values.hypershiftDeployment.deploymentName }}
+      name: {{ .Values.hypershiftDeploymentOperator.name }}
   template:
     metadata:
       labels:
-        name: {{ .Values.hypershiftDeployment.deploymentName }}
+        name: {{ .Values.hypershiftDeploymentOperator.name }}
+        ocm-antiaffinity-selector: {{ .Values.hypershiftDeploymentOperator.name }}
     spec:
       {{- if .Values.global.pullSecret }}
       imagePullSecrets:
@@ -42,7 +43,7 @@ spec:
                 - key: ocm-antiaffinity-selector
                   operator: In
                   values:
-                  - {{ .Values.hypershiftDeployment.deploymentName }}
+                  - {{ .Values.hypershiftDeploymentOperator.name }}
           - weight: 35
             podAffinityTerm:
               topologyKey: kubernetes.io/hostname
@@ -51,8 +52,8 @@ spec:
                 - key: ocm-antiaffinity-selector
                   operator: In
                   values:
-                  - {{ .Values.hypershiftDeployment.deploymentName }}
-      serviceAccountName: {{ .Values.hypershiftDeployment.serviceaccount }}
+                  - {{ .Values.hypershiftDeploymentOperator.name }}
+      serviceAccountName: {{ .Values.hypershiftDeploymentOperator.serviceaccount }}
       hostNetwork: false
       hostPID: false
       hostIPC: false
@@ -60,7 +61,7 @@ spec:
         runAsNonRoot: true
       containers:
       - image: "{{ .Values.global.imageOverrides.hypershift_deployment_controller }}"
-        name: {{ .Values.hypershiftDeployment.deploymentName }}
+        name: {{ .Values.hypershiftDeploymentOperator.name }}
         command: ["./manager", "--leader-elect"]
         imagePullPolicy: "{{ .Values.global.pullPolicy }}"
         env:

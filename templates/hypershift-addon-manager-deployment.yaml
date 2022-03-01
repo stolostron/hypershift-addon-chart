@@ -1,20 +1,21 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{ .Values.hypershiftAddonMgr.deploymentName }}
-  namespace: {{ .Values.installNamespace }}
+  name: {{ .Values.hypershiftAddonMgrOperator.name }}
+  namespace: {{ .Values.global.namespace }}
   labels:
-    app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+    app: {{ .Values.hypershiftAddonMgrOperator.name }}
 spec:
-  replicas: {{ .Values.hypershiftAddonMgr.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+      app: {{ .Values.hypershiftAddonMgrOperator.name }}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: {{ .Values.hypershiftAddonMgr.deploymentName }}
+        app: {{ .Values.hypershiftAddonMgrOperator.name }}
+        ocm-antiaffinity-selector: {{ .Values.hypershiftAddonMgrOperator.name }}
     spec:
       {{- if .Values.global.pullSecret }}
       imagePullSecrets:
@@ -42,7 +43,7 @@ spec:
                 - key: ocm-antiaffinity-selector
                   operator: In
                   values:
-                  - {{ .Values.hypershiftAddonMgr.deploymentName }}
+                  - {{ .Values.hypershiftAddonMgrOperator.name }}
           - weight: 35
             podAffinityTerm:
               topologyKey: kubernetes.io/hostname
@@ -51,24 +52,37 @@ spec:
                 - key: ocm-antiaffinity-selector
                   operator: In
                   values:
-                  - {{ .Values.hypershiftAddonMgr.deploymentName }}
+                  - {{ .Values.hypershiftAddonMgrOperator.name }}
       restartPolicy: Always
-      serviceAccountName: {{ .Values.hypershiftAddonMgr.serviceaccount }}
+      serviceAccountName: {{ .Values.hypershiftAddonMgrOperator.serviceaccount }}
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: tmp-vol
       hostNetwork: false
       hostPID: false
       hostIPC: false
       securityContext:
         runAsNonRoot: true
+        runAsUser: 1001
       terminationGracePeriodSeconds: 30
       containers:
-        - name: {{ .Values.hypershiftAddonMgr.deploymentName }}
-          image: {{ .Values.hypershiftAddonMgr.image }}
+        - name: {{ .Values.hypershiftAddonMgrOperator.name }}
+          image: {{ .Values.global.imageOverrides.hypershift_addon_operator }}
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp-vol
           args:
             - ./hypershift-addon
             - manager
-            - '--namespace={{ .Values.installNamespace }}'
-{{- if .Values.hubconfig.proxyConfigs }}
+            - '--namespace={{ .Values.global.namespace }}'
           env:
+            - name: HYPERSHIFT_OPERATOR_IMAGE_NAME
+              value: '{{ .Values.global.imageOverrides.hypershift_operator }}'
+            - name: HYPERSHIFT_ADDON_IMAGE_NAME
+              value: '{{ .Values.global.imageOverrides.hypershift_addon_operator }}'
+{{- if .Values.hubconfig.proxyConfigs }}
+
           - name: HTTP_PROXY
             value: {{ .Values.hubconfig.proxyConfigs.HTTP_PROXY }}
           - name: HTTPS_PROXY
@@ -84,6 +98,10 @@ spec:
               - ALL
             privileged: false
             readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: "2m"
+              memory: "2Mi"
 {{- with .Values.hubconfig.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
