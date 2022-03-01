@@ -9,4 +9,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.hypershiftAddonMgrOperator.serviceaccount }}
-    namespace: {{ .Values.org }}
+    namespace: {{ .Values.global.namespace }}
