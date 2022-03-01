@@ -7,7 +7,7 @@ metadata:
   name: {{ .Values.hypershiftDeployment.deploymentName }}
   namespace: {{ .Values.installNamespace }}
 spec:
-  replicas: {{ .Values.hypershiftDeployment.replicas }}
+  replicas: {{ .Values.hubconfig.replicaCount }}
   selector:
     matchLabels:
       name: {{ .Values.hypershiftDeployment.deploymentName }}
@@ -16,18 +16,89 @@ spec:
       labels:
         name: {{ .Values.hypershiftDeployment.deploymentName }}
     spec:
+      {{- if .Values.global.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.global.pullSecret }}
+      {{- end }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - ppc64le
+                - s390x
+                - arm64
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 70
+            podAffinityTerm:
+              topologyKey: topology.kubernetes.io/zone
+              labelSelector:
+                matchExpressions:
+                - key: ocm-antiaffinity-selector
+                  operator: In
+                  values:
+                  - {{ .Values.hypershiftDeployment.deploymentName }}
+          - weight: 35
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchExpressions:
+                - key: ocm-antiaffinity-selector
+                  operator: In
+                  values:
+                  - {{ .Values.hypershiftDeployment.deploymentName }}
       serviceAccountName: {{ .Values.hypershiftDeployment.serviceaccount }}
+      hostNetwork: false
+      hostPID: false
+      hostIPC: false
+      securityContext:
+        runAsNonRoot: true
       containers:
-      - image: {{ .Values.hypershiftDeployment.image }}
-        name: hypershift-deployment-controller
+      - image: "{{ .Values.global.imageOverrides.hypershift_deployment_controller }}"
+        name: {{ .Values.hypershiftDeployment.deploymentName }}
         command: ["./manager", "--leader-elect"]
-        imagePullPolicy: Always
+        imagePullPolicy: "{{ .Values.global.pullPolicy }}"
         env:
         - name: POD_NAME
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+{{- if .Values.hubconfig.proxyConfigs }}
+        - name: HTTP_PROXY
+          value: {{ .Values.hubconfig.proxyConfigs.HTTP_PROXY }}
+        - name: HTTPS_PROXY
+          value: {{ .Values.hubconfig.proxyConfigs.HTTPS_PROXY }}
+        - name: NO_PROXY
+          value: {{ .Values.hubconfig.proxyConfigs.NO_PROXY }}
+{{- end }}
+        imagePullPolicy: "{{ .Values.global.pullPolicy }}"
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
         resources:
           requests:
             cpu: "2m"                     # Runs < 10m most of the time and idels at about 3m
             memory: "2Mi"                # Runs between 25-28Mi
+{{- with .Values.hubconfig.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- with .Values.hubconfig.tolerations }}
+      tolerations:
+      {{- range . }}
+      - {{ if .Key }} key: {{ .Key }} {{- end }}
+        {{ if .Operator }} operator: {{ .Operator }} {{- end }}
+        {{ if .Value }} value: {{ .Value }} {{- end }}
+        {{ if .Effect }} effect: {{ .Effect }} {{- end }}
+        {{ if .TolerationSeconds }} tolerationSeconds: {{ .TolerationSeconds }} {{- end }}
+        {{- end }}
+{{- end }}
