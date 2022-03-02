@@ -1,26 +1,25 @@
-installNamespace: open-cluster-management
-
-hypershiftAddonMgr:
-  deploymentName: hypershift-addon-manager
-  serviceaccount: hypershift-addon-manager-sa
-  image: quay.io/ianzhang366/hypershift-addon-operator:latest
-
-
-hypershiftDeployment:
-  deploymentName: hypershift-deployment-controller
-  serviceaccount: hyc
-  leaderRoleName: hypershiftDeployment-leader-election
-  editorRoleName: hypershiftdeployment-editor-role
-  viewerRoleName: hypershiftdeployment-viewer-role
-
 global:
   imageOverrides:
     hypershift_deployment_controller: quay.io/stolostron/hypershift-deployment-controller:latest
+    hypershift_addon_operator: quay.io/ianzhang366/hypershift-addon-operator:latest
+    hypershift_operator: quay.io/hypershift/hypershift-operator:latest
   pullSecret: ""
   namespace: default
+
 hubconfig:
   nodeSelector: {}
   proxyConfigs: {}
   replicaCount: 2
   tolerations: []
+
 org: open-cluster-management
+
+
+hypershiftAddonMgrOperator:
+  name: hypershift-addon-manager
+  serviceaccount: hypershift-addon-manager-sa
+
+hypershiftDeploymentOperator:
+  name: hypershift-deployment-controller
+  serviceaccount: hypershift-deployment
+  leaderRoleName: hypershiftDeployment-leader-election
