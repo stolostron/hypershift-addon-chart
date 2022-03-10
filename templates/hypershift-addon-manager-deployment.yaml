@@ -6,7 +6,7 @@ metadata:
   labels:
     app: {{ .Values.hypershiftAddonMgrOperator.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.hubconfig.replicaCount }}
   selector:
     matchLabels:
       app: {{ .Values.hypershiftAddonMgrOperator.name }}

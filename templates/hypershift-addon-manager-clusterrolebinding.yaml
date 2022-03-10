@@ -5,7 +5,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-admin
+  name: {{ .Values.org }}:{{ .Chart.Name }}:{{ .Values.hypershiftAddonMgrOperator.name }}
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.hypershiftAddonMgrOperator.serviceaccount }}
