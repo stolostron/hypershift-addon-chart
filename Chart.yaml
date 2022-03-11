@@ -1,6 +1,6 @@
 apiVersion: v2
 name: hypershift-addon-chart
-description: A Helm chart for installing the hypershift-addon to ACM
+description: A Helm chart for installing the hypershift-addon to MCE
 
 # A chart can be either an 'application' or a 'library' chart.
 #

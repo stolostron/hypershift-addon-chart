@@ -4,7 +4,7 @@ global:
     hypershift_addon_operator: quay.io/stolostron/hypershift-addon-operator:latest
     hypershift_operator: quay.io/hypershift/hypershift-operator:latest
   pullSecret: ""
-  namespace: default
+  namespace: multicluster-engine
 
 hubconfig:
   nodeSelector: {}
