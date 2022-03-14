@@ -64,7 +64,6 @@ spec:
       hostIPC: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1001
       terminationGracePeriodSeconds: 30
       containers:
         - name: {{ .Values.hypershiftAddonMgrOperator.name }}
