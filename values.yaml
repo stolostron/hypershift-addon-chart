@@ -1,7 +1,7 @@
 global:
   imageOverrides:
     hypershift_deployment_controller: quay.io/stolostron/hypershift-deployment-controller:latest
-    hypershift_addon_operator: quay.io/stolostron/hypershift-addon-operator:latest
+    hypershift_addon_operator: quay.io/ianzhang366/hypershift-addon-operator:latest
     hypershift_operator: quay.io/hypershift/hypershift-operator:latest
   pullSecret: ""
   namespace: default
@@ -9,7 +9,7 @@ global:
 hubconfig:
   nodeSelector: {}
   proxyConfigs: {}
-  replicaCount: 2
+  replicaCount: 1
   tolerations: []
 
 org: open-cluster-management

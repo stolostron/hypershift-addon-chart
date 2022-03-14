@@ -8,30 +8,16 @@ rules:
   resources:
   - secrets
   - configmaps
-  verbs:
-  - create
-  - deletecollection
-  - get
-  - list
-  - patch
-  - update
-  - watch
+  - events
+  verbs: ["get", "list", "watch", "create", "update", "delete", "deletecollection", "patch"]
 - apiGroups:
   - addon.open-cluster-management.io
   resources:
-  - managedclusteraddons
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - addon.open-cluster-management.io
-  resources:
+  - managedclusteraddons/finalizers
   - managedclusteraddons/status
+  - managedclusteraddons
+  - clustermanagementaddons/finalizers
+  - clustermanagementaddons
   verbs:
   - create
   - delete
@@ -44,14 +30,7 @@ rules:
   - work.open-cluster-management.io
   resources:
   - manifestworks
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
+  verbs: ["create", "update", "get", "list", "watch", "delete", "deletecollection", "patch"]
 - apiGroups:
   - config.openshift.io
   resources:
@@ -66,16 +45,6 @@ rules:
   - certificates.k8s.io
   resources:
   - certificatesigningrequests
-  verbs:
-  - create
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - certificates.k8s.io
-  resources:
   - certificatesigningrequests/approval
   verbs:
   - create
@@ -84,6 +53,9 @@ rules:
   - patch
   - update
   - watch
+- apiGroups: ["certificates.k8s.io"]
+  resources: ["signers"]
+  verbs: ["approve"]
 - apiGroups:
   - cluster.open-cluster-management.io
   resources:
@@ -98,15 +70,8 @@ rules:
   - rbac.authorization.k8s.io
   resources:
   - roles
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - rbac.authorization.k8s.io
-  resources:
   - rolebindings
-  verbs:
-  - get
-  - list
-  - watch
+  verbs: ["get", "list", "watch", "create", "update", "delete"]
+- apiGroups: ["authorization.k8s.io"]
+  resources: ["subjectaccessreviews"]
+  verbs: ["get", "create"]
