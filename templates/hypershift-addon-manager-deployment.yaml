@@ -75,6 +75,9 @@ spec:
             - ./hypershift-addon
             - manager
             - '--namespace={{ .Values.global.namespace }}'
+{{- if .Values.hypershiftAddonMgrOperator.downstream }}
+            - '--with-image-override=true'
+{{- end }}
           env:
             - name: HYPERSHIFT_OPERATOR_IMAGE_NAME
               value: '{{ .Values.global.imageOverrides.hypershift_operator }}'

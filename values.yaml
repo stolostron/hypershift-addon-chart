@@ -1,15 +1,23 @@
 global:
   imageOverrides:
     hypershift_deployment_controller: quay.io/stolostron/hypershift-deployment-controller:latest
-    hypershift_addon_operator: quay.io/stolostron/hypershift-addon-operator:latest
+    hypershift_addon_operator: quay.io/ianzhang366/hypershift-addon-operator:latest
+    apiserver_network_proxy: quay.io/stolostron/apiserver-network-proxy:latest
+    aws_encryption_provider: quay.io/stolostron/aws-encryption-provider:latest
+    cluster_api: quay.io/stolostron/cluster-api:v1.0.0
+    cluster_api_provider_agent: quay.io/stolostron/cluster-api-provider-agent:latest
+    cluster_api_provider_aws: quay.io/stolostron/cluster-api-aws-controller:v1.1.0
+    cluster_api_provider_azure: quay.io/stolostron/cluster-api-provider-azure:v20220217-v1.1.0-193-gf7fd1995
     hypershift_operator: quay.io/hypershift/hypershift-operator:latest
+    cluster_api_provider_kubevirt: quay.io/stolostron/cluster-api-provider-kubevirt:0.0.1-prerelease
   pullSecret: ""
   namespace: default
+
 
 hubconfig:
   nodeSelector: {}
   proxyConfigs: {}
-  replicaCount: 1
+  replicaCount: 0
   tolerations: []
 
 org: open-cluster-management
@@ -18,6 +26,8 @@ org: open-cluster-management
 hypershiftAddonMgrOperator:
   name: hypershift-addon-manager
   serviceaccount: hypershift-addon-manager-sa
+  downstream: true
+  imagestream: hypershift-operator-imagestream
 
 hypershiftDeploymentOperator:
   name: hypershift-deployment-controller
